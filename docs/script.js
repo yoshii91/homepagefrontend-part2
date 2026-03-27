@@ -94,3 +94,22 @@ if (contactForm && complete) {
     contactForm.reset();
   });
 }
+
+const linePopup = document.getElementById('line-popup');
+const linePopupClose = document.querySelector('.line-popup-close');
+
+if (linePopup) {
+  const dismissed = sessionStorage.getItem('line-popup-dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      linePopup.hidden = false;
+    }, 4000);
+  }
+
+  if (linePopupClose) {
+    linePopupClose.addEventListener('click', () => {
+      linePopup.hidden = true;
+      sessionStorage.setItem('line-popup-dismissed', '1');
+    });
+  }
+}
