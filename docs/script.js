@@ -88,10 +88,42 @@ if ('IntersectionObserver' in window && revealTargets.length) {
 const contactForm = document.getElementById('contact-form');
 const complete = document.getElementById('complete-message');
 if (contactForm && complete) {
-  contactForm.addEventListener('submit', (event) => {
+  contactForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    complete.hidden = false;
-    contactForm.reset();
+
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+
+    complete.hidden = true;
+    complete.textContent = '';
+
+    try {
+      const formData = new FormData(contactForm);
+      const response = await fetch('/contact', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const msg = result.error || '送信に失敗しました。時間をおいて再度お試しください。';
+        throw new Error(msg);
+      }
+
+      complete.textContent = `送信完了しました。受付番号: ${result.id || '発行失敗'}`;
+      complete.hidden = false;
+      contactForm.reset();
+    } catch (error) {
+      complete.textContent = `送信エラー: ${error.message}`;
+      complete.hidden = false;
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+      }
+    }
   });
 }
 
